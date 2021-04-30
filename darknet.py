@@ -67,7 +67,8 @@ class METADATA(Structure):
     
 
 #lib = CDLL("/home/pjreddie/documents/darknet/libdarknet.so", RTLD_GLOBAL)
-lib = CDLL("/home/rrc/darknet/libdarknet.so", RTLD_GLOBAL)
+lib = CDLL("/home/ros/catkin_ws/src/usma_darknet_ros/libdarknet.so", RTLD_GLOBAL)
+#lib = CDLL("/home//darknet/libdarknet.so", RTLD_GLOBAL)
 lib.network_width.argtypes = [c_void_p]
 lib.network_width.restype = c_int
 lib.network_height.argtypes = [c_void_p]
@@ -185,8 +186,8 @@ def draw(img, boxes):
         item, confidence, (x, y, w, h) = box
         color = colors[i%len(colors)]
         
-        cv2.rectangle(img, (int(x-w/2), int(y-h/2)), (int(x+w/2), int(y+h/2)), color, 2) #top-left, bottom-right
-        cv2.putText(img, item, (int(y), int(x)), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2, cv2.LINE_AA)
+        cv2.rectangle(img, (int(x-w//2), int(y-h//2)), (int(x+w//2), int(y+h//2)), color, 2) #top-left, bottom-right
+        cv2.putText(img, "{}: {:.2f}%".format(item, confidence*100), (int(y), int(x)), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2, cv2.LINE_AA)
     
 
 def callback(img):
@@ -194,7 +195,7 @@ def callback(img):
     prev = time.time()
     img = bridge.imgmsg_to_cv2(img, desired_encoding="bgr8")
     boxes = detect(net, meta, img)
-    print(boxes)
+    #print(boxes)
     draw(img, boxes)
     print("Delay: {:.2f}".format(time.time()-prev))
     #print(type(img))
@@ -210,7 +211,8 @@ def listener():
     rate = rospy.Rate(10)
     #topic = "/camera_fm/camera_fm/image_raw"
     # identify topic name with the command "rostopic list"
-    topic = "/camera/rgb/image"
+    topic = "/usb_cam/image_raw"
+    #topic = "/camera/rgb/image"
     rospy.Subscriber(topic, Image, callback)
     while not rospy.is_shutdown():
         rate.sleep()
